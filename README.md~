@@ -62,10 +62,3 @@ The **SPCC Church Database System** is a simple and efficient church management 
    git push origin feature-name
 
 ## License
-This project is licensed under the [MIT License](LICENSE).
-
-## Acknowledgments
-- **ShadcnUI** for the design and component library.
-- **Supabase** for the backend and database.
-
-Made with ❤️ for St. Paul Catholic Church Community
