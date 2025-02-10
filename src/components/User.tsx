@@ -1,0 +1,100 @@
+import { useState, useEffect, useCallback } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { supabase } from "@/lib/supabaseClient";
+import { Member, UserData } from "@/types/userTypes";
+
+export default function UserSearch() {
+    const [search, setSearch] = useState<string>("");
+    const [suggestions, setSuggestions] = useState<Member[]>([]);
+    const [userData, setUserData] = useState<UserData | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    const fetchSuggestions = useCallback(async () => {
+        if (search.length < 2) {
+            setSuggestions([]);
+            return;
+        }
+
+        try {
+            const { data, error } = await supabase
+                .from("members")
+                .select("id, name")
+                .ilike("name", `%${search}%`);
+
+            if (error) {
+                setErrorMessage("Error fetching suggestions: " + error.message);
+            } else {
+                setSuggestions(data as Member[]);
+                setErrorMessage(null);
+            }
+        } catch (error) {
+            setErrorMessage(error.message);
+        }
+    }, [search]);
+
+    useEffect(() => {
+        fetchSuggestions().then(r => console.log("fetched suggestions", r));
+    }, [fetchSuggestions, search]); // Removed fetchSuggestions from dependencies
+
+    const fetchUserData = async (id: number) => {
+        try {
+            const { data, error } = await supabase
+                .from("members")
+                .select("name, dues")
+                .eq("id", id)
+                .single();
+
+            if (error) {
+                setErrorMessage("Error fetching user data: " + error.message);
+            } else {
+                setUserData(data as UserData);
+                setErrorMessage(null);
+            }
+        } catch (error) {
+            setErrorMessage(error.message);
+        }
+    };
+
+    return (
+        <div className="flex justify-center items-center h-screen bg-gradient-to-b from-blue-500 to-white">
+            <div className="max-w-md w-full p-4 bg-white shadow-lg rounded-lg">
+                <div className="flex gap-2">
+                    <Input
+                        placeholder="Search your name..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        id={search}
+                    />
+                    <Button
+                        onClick={fetchSuggestions}
+                        className="px-4"
+                    >
+                        Search
+                    </Button>
+                </div>
+                {errorMessage && <p className="text-red-500 mt-2">{errorMessage}</p>}
+                <ul className="bg-white shadow-md mt-2 rounded-lg">
+                    {suggestions.map((user) => (
+                        <li
+                            key={user.id}
+                            className="p-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => fetchUserData(user.id)}
+                        >
+                            {user.name}
+                        </li>
+                    ))}
+                </ul>
+                {userData && (
+                    <Card className="mt-4">
+                        <CardContent>
+                            <h2 className="text-xl font-bold">{userData.name}</h2>
+                            <p className="text-red-500">Unpaid Dues: ${userData.dues}</p>
+                        </CardContent>
+                    </Card>
+                )}
+            </div>
+        </div>
+    );
+}
