@@ -14,17 +14,19 @@ export const columns: ColumnDef<Member>[] = [
     {
         accessorKey: "status",
         header: "Status",
-        cell: ({ row }) => {
+        cell: ({row}) => {
             const status = row.getValue("status") as string;
             const statusColors: Record<string, string> = {
-                Active: "bg-green-500 text-white",
+                active: "bg-green-500 text-white",
                 Inactive: "bg-yellow-500 text-black",
                 Dead: "bg-red-500 text-white",
                 "Not a Member": "bg-black text-white",
             };
 
             return (
-                <div className={`capitalize font-medium px-2 py-1 rounded ${statusColors[status] || "bg-gray-200"}`}>
+                <div className={`capitalize font-medium px-2 py-1 rounded ${
+                    statusColors[status?.trim() as keyof typeof statusColors] || "bg-gray-500 text-white"
+                }`}>
                     {status}
                 </div>
             );

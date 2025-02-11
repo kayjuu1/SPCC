@@ -10,7 +10,7 @@ export type MemberData = {
 };
 
 // Function to fetch members from Supabase
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/supabaseClient.ts";
 
 export const fetchMembers = async (): Promise<MemberData[]> => {
     const { data, error } = await supabase.from("members").select("id, name, status, defaulted");

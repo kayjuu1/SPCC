@@ -36,7 +36,7 @@ The **SPCC Church Database System** is a simple and efficient church management 
 ## Installation & Setup
 1. **Clone the repository:**
    ```sh
-   git clone https://github.com/your-repo/spcc-database.git
+   git clone https://github.com/kayjuu1/SPCC
    cd spcc-database
 2. **Install dependencies:**
     ```sh

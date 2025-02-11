@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/supabaseClient.ts";
 import { Member, UserData } from "@/types/userTypes";
 
 export default function UserSearch() {
@@ -58,7 +58,7 @@ export default function UserSearch() {
     };
 
     return (
-        <div className="flex justify-center items-center h-screen bg-gradient-to-b from-blue-500 to-white">
+        <div className="flex justify-center items-center h-screen bg-[171717]">
             <div className="max-w-md w-full p-4 bg-white shadow-lg rounded-lg">
                 <div className="flex gap-2">
                     <Input

@@ -3,16 +3,35 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { supabase } from "@/lib/supabaseClient";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    DialogDescription
+} from "@/components/ui/dialog";
+import { supabase } from "@/supabaseClient.ts";
 import { Member } from "@/types/adminTypes";
 
-export default function AddMemberModal({ isOpen, onClose, onMemberAdded }: { isOpen: boolean; onClose: () => void; onMemberAdded: () => void; }) {
+export default function AddMemberModal({
+                                           isOpen,
+                                           onClose,
+                                           onMemberAdded
+                                       }: {
+    isOpen: boolean;
+    onClose: () => void;
+    onMemberAdded: () => void;
+}) {
     const [formData, setFormData] = useState<Partial<Member>>({});
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        const { name, value, type } = e.target;
+
+        setFormData((prev) => ({
+            ...prev,
+            [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value
+        }));
     };
 
     const handleSubmit = async () => {
@@ -30,7 +49,9 @@ export default function AddMemberModal({ isOpen, onClose, onMemberAdded }: { isO
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Add Member</DialogTitle>
+                    <DialogDescription>Fill in the details to register a new member.</DialogDescription>
                 </DialogHeader>
+
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <Label>Name</Label>
@@ -65,15 +86,24 @@ export default function AddMemberModal({ isOpen, onClose, onMemberAdded }: { isO
                         <Input name="role" onChange={handleChange} />
 
                         <Label>Has Member Defaulted?</Label>
-                        <select name="defaulted" onChange={handleChange} className="border rounded p-2 w-full">
+                        <select
+                            name="defaulted"
+                            onChange={handleChange}
+                            className="border rounded p-2 w-full"
+                        >
                             <option value="false">No</option>
                             <option value="true">Yes</option>
                         </select>
                     </div>
                 </div>
+
                 <DialogFooter>
-                    <Button onClick={handleSubmit} className="bg-teal-700">Add Member</Button>
-                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                    <Button onClick={handleSubmit} className="bg-teal-700">
+                        Add Member
+                    </Button>
+                    <Button variant="ghost" onClick={onClose}>
+                        Cancel
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

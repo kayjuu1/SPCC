@@ -3,7 +3,7 @@ import {useState, useEffect} from "react";
 import {Button} from "@/components/ui/button";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {Card, CardContent} from "@/components/ui/card";
-import {supabase} from "@/lib/supabaseClient";
+import {supabase} from "@/supabaseClient.ts";
 import {Member} from "@/types/adminTypes";
 import {
     getCoreRowModel,
@@ -15,6 +15,8 @@ import {
 } from "@tanstack/react-table";
 import AddMemberDialog from "./AddMemberModal";
 import {columns} from "@/utils/columns.tsx";
+import SideBar from "@/components/SideBar.tsx";
+import AddMemberButton from "@/components/AddMemberButton.tsx";
 
 export default function AdminDashboard() {
     const [members, setMembers] = useState<Member[]>([]);
@@ -22,7 +24,7 @@ export default function AdminDashboard() {
 
     // Fetch members from Supabase
     const loadMembers = async () => {
-        const {data, error} = await supabase.from("members").select("id, name, status, defaulted, contact");
+        const {data, error} = await supabase.from("members").select("id, name, status, contact");
         if (error) {
             console.error("Error fetching members:", error);
         } else {
@@ -33,30 +35,20 @@ export default function AdminDashboard() {
     useEffect(() => {
         loadMembers().then(r => console.log(r));
     }, []);
-
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        window.location.href = "/admin/signin";
+    };
     return (
         <div className="flex h-screen">
             {/* Sidebar */}
-            <aside className="w-64 bg-teal-800 text-white p-4">
-                <h2 className="text-xl font-bold mb-4">ADMIN DASHBOARD</h2>
-                <nav>
-                    <ul>
-                        <li className="mb-2">
-                            <Button variant="ghost" className="w-full text-left">
-                                Manage Members
-                            </Button>
-                        </li>
-                    </ul>
-                </nav>
-            </aside>
+            <SideBar/>
 
             {/* Main Content */}
             <main className="flex-1 p-6 bg-gray-100">
                 <div className="flex justify-between mb-4">
                     <h1 className="text-xl font-bold mb-4">ADMIN DASHBOARD</h1>
-                    <Button onClick={() => setIsAddMemberOpen(true)} className="bg-teal-700">
-                        Add Member
-                    </Button>
+                    <AddMemberButton  onMemberAdded={ loadMembers}/>
                 </div>
                 <h1 className="text-2xl font-bold text-center">Members</h1>
                 <AddMemberDialog isOpen={isAddMemberOpen} onClose={() => setIsAddMemberOpen(false)}
