@@ -1,6 +1,5 @@
 import * as React from "react";
 import {useState, useEffect} from "react";
-import {Button} from "@/components/ui/button";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {Card, CardContent} from "@/components/ui/card";
 import {supabase} from "@/supabaseClient.ts";
@@ -24,7 +23,7 @@ export default function AdminDashboard() {
 
     // Fetch members from Supabase
     const loadMembers = async () => {
-        const {data, error} = await supabase.from("members").select("id, name, status, contact");
+        const {data, error} = await supabase.from("members").select("id, name, status, contact, role, society");
         if (error) {
             console.error("Error fetching members:", error);
         } else {
@@ -33,8 +32,10 @@ export default function AdminDashboard() {
     };
 
     useEffect(() => {
-        loadMembers().then(r => console.log(r));
+        loadMembers().then(r => console.log("Members Loaded Successfully.", r));
     }, []);
+
+    //Logout function
     const handleLogout = async () => {
         await supabase.auth.signOut();
         window.location.href = "/admin/signin";
@@ -48,7 +49,7 @@ export default function AdminDashboard() {
             <main className="flex-1 p-6 bg-gray-100">
                 <div className="flex justify-between mb-4">
                     <h1 className="text-xl font-bold mb-4">ADMIN DASHBOARD</h1>
-                    <AddMemberButton  onMemberAdded={ loadMembers}/>
+                    <AddMemberButton onMemberAdded={loadMembers}/>
                 </div>
                 <h1 className="text-2xl font-bold text-center">Members</h1>
                 <AddMemberDialog isOpen={isAddMemberOpen} onClose={() => setIsAddMemberOpen(false)}
@@ -84,11 +85,11 @@ export function DataTable({data}: { data: Member[] }) {
     return (
         <div className="max-w-full">
             <Table>
-                <TableHeader >
+                <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id} >
+                        <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map((header) => (
-                                <TableHead key={header.id} >
+                                <TableHead key={header.id}>
                                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                                 </TableHead>
                             ))}

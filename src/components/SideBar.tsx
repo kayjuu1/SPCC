@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react"; // Icons for toggle button
+import {useState} from "react";
+import {Button} from "@/components/ui/button";
+import {Menu, X} from "lucide-react";
+
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -13,7 +14,7 @@ const Sidebar = () => {
                 className="md:hidden fixed top-4 left-4 z-50 bg-teal-800 text-white p-2 rounded"
                 onClick={() => setIsOpen(!isOpen)}
             >
-                {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                {isOpen ? <X className="w-6 h-6"/> : <Menu className="w-6 h-6"/>}
             </Button>
 
             {/* Sidebar */}
@@ -23,8 +24,9 @@ const Sidebar = () => {
                 <nav>
                     <ul>
                         <li className="mb-2">
-                            <Button variant="ghost" className="w-full text-left">
-                                Manage Members
+                            <Button variant="ghost" className="w-full text-left" onClick={() =>
+                                window.location.href = "/admin/dashboard"}>
+                                Home
                             </Button>
                         </li>
                     </ul>
