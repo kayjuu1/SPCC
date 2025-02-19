@@ -1,9 +1,10 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {supabase} from "@/supabaseClient.ts";
 import {Input} from "@/components/ui/input.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {useNavigate} from "react-router-dom";
+import {useAuth} from "@/context/AuthContext.tsx";
 
 export default function SignIn() {
     const [email, setEmail] = useState("");
@@ -11,22 +12,33 @@ export default function SignIn() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate();
+    const {setIsAuthenticated} = useAuth();
 
     const handleSignIn = async () => {
         setLoading(true);
         setError("");
         const {error} = await supabase.auth.signInWithPassword({
             email,
-            password
+            password,
         });
 
         if (error) {
             setError(error.message);
         } else {
-            navigate("/admin/dashboard");
+            setIsAuthenticated(true); // Update authentication state
+            navigate("/admin/dashboard"); // Redirect to dashboard
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        const checkSession = async () => {
+            const {data: {session}} = await supabase.auth.getSession();
+            console.log("Session:", session);
+        };
+
+        checkSession();
+    }, []);
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-100">

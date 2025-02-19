@@ -75,7 +75,7 @@ export const columns: ColumnDef<Member>[] = [
                     </Button>
                 );
             };
-            return <EditButtonWrapper/>;
+            return <EditButtonWrapper />;
         },
     }
 ];

@@ -1,11 +1,12 @@
-import {useState} from "react";
+import React, {useState} from "react";
 import {Button} from "@/components/ui/button";
-import {Menu, X} from "lucide-react";
-
+import {FileText, Menu, Users, X} from "lucide-react";
+import {useParams, useNavigate} from "react-router-dom";
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
-
+    const {id} = useParams();
+    const navigate = useNavigate();
     return (
         <>
             {/* Mobile Toggle Button */}
@@ -18,20 +19,32 @@ const Sidebar = () => {
             </Button>
 
             {/* Sidebar */}
-            <aside className={`w-64 bg-teal-800 text-white p-4 fixed h-full md:relative transition-transform
-                ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
-                <h2 className="text-xl font-bold mb-4">ADMIN DASHBOARD</h2>
-                <nav>
-                    <ul>
-                        <li className="mb-2">
-                            <Button variant="ghost" className="w-full text-left" onClick={() =>
-                                window.location.href = "/admin/dashboard"}>
-                                Home
-                            </Button>
-                        </li>
-                    </ul>
+            <div className="w-64 bg-primary h-full p-4 space-y-2">
+                <nav className="space-y-2">
+                    <h1 className="text-white text-xl text-center mb-4 font-bold">ADMIN DASHBOARD</h1>
+                    <Button variant="ghost"
+                            className="w-full justify-start text-white hover:text-white hover:bg-primary/90"
+                            onClick={() => navigate("/admin/dashboard")}>
+                        <FileText className="mr-2 h-4 w-4"/>
+                        All Members
+                    </Button>
+                    <Button variant="ghost"
+                            className="w-full justify-start text-white hover:text-white hover:bg-primary/90">
+                        <FileText className="mr-2 h-4 w-4"/>
+                        New Members
+                    </Button>
+                    <Button variant="ghost"
+                            className="w-full justify-start text-white hover:text-white hover:bg-primary/90">
+                        <FileText className="mr-2 h-4 w-4"/>
+                        Deleted Members
+                    </Button>
+                    <Button variant="ghost"
+                            className="w-full justify-start text-white hover:text-white hover:bg-primary/90">
+                        <Users className="mr-2 h-4 w-4"/>
+                        ADMINS
+                    </Button>
                 </nav>
-            </aside>
+            </div>
         </>
     );
 };
