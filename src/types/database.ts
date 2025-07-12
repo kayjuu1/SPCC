@@ -31,6 +31,26 @@ export interface AdminLog {
   created_at: string;
 }
 
+export interface Admin {
+  id: string;
+  user_id: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'super_admin';
+  status: 'active' | 'inactive';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DeletedMember {
+  id: string;
+  original_member_id: string;
+  member_data: Member;
+  deleted_by: string;
+  deleted_at: string;
+  reason?: string;
+}
+
 export interface UserSearchResult {
   id: string;
   name: string;

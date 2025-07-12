@@ -4,6 +4,10 @@ import AdminPanel from "@/components/AdminPanel.tsx";
 import SignIn from "./admin/SignIn";
 import EditMember from "./admin/EditMemberPage";
 import NavBar from "@/components/NavBar.tsx";
+import AllMembersPage from "@/pages/AllMembersPage";
+import NewMembersPage from "@/pages/NewMembersPage";
+import DeletedMembersPage from "@/pages/DeletedMembersPage";
+import AdminsPage from "@/pages/AdminsPage";
 import React from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Toaster } from "@/components/ui/toaster";
@@ -62,6 +66,46 @@ function App() {
                         <ProtectedRoute>
                             <AdminLayout>
                                 <AdminPanel />
+                            </AdminLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/members"
+                    element={
+                        <ProtectedRoute>
+                            <AdminLayout>
+                                <AllMembersPage />
+                            </AdminLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/members/new"
+                    element={
+                        <ProtectedRoute>
+                            <AdminLayout>
+                                <NewMembersPage />
+                            </AdminLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/members/deleted"
+                    element={
+                        <ProtectedRoute>
+                            <AdminLayout>
+                                <DeletedMembersPage />
+                            </AdminLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/admins"
+                    element={
+                        <ProtectedRoute>
+                            <AdminLayout>
+                                <AdminsPage />
                             </AdminLayout>
                         </ProtectedRoute>
                     }

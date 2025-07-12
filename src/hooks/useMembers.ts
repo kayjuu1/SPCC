@@ -97,6 +97,35 @@ export function useMembers() {
 
   const deleteMember = async (id: string) => {
     try {
+      // First get the member data before deleting
+      const { data: memberData, error: fetchError } = await supabase
+        .from('members')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      // Get current user for tracking who deleted the member
+      const { data: { user } } = await supabase.auth.getUser();
+
+      // Store in deleted_members table
+      const { error: insertError } = await supabase
+        .from('deleted_members')
+        .insert([{
+          original_member_id: id,
+          member_data: memberData,
+          deleted_by: user?.id,
+          reason: 'Deleted by admin'
+        }]);
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      // Now delete from members table
       const { error } = await supabase
         .from('members')
         .delete()
