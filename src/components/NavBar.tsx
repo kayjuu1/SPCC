@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {User, LogOut} from "lucide-react";
-import {supabase} from "@/supabaseClient.ts";
+import { supabase } from "@/lib/supabase";
 
 interface NavBarProps {
     adminName: string;

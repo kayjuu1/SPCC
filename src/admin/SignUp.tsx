@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {supabase} from "@/supabaseClient.ts";
+import {supabase} from "@/lib/supabase";
 import {Input} from "@/components/ui/input.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {Label} from "@/components/ui/label.tsx";
