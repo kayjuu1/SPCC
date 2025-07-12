@@ -1,17 +1,18 @@
-import {ColumnDef} from "@tanstack/react-table";
-import {Member} from "@/types/adminTypes.ts";
+import { ColumnDef } from "@tanstack/react-table";
+import { Member } from "@/lib/supabase";
 import {Button} from "@/components/ui/button.tsx";
 import * as React from "react";
 import {useNavigate} from "react-router-dom";
+import { Edit, Trash2 } from "lucide-react";
 
-export const columns: ColumnDef<Member>[] = [
+export const createColumns = (onDelete: (id: string) => void): ColumnDef<Member>[] => [
     {
         accessorKey: "status",
         header: "Status",
         cell: ({row}) => {
             const status = row.getValue("status") as string;
             const statusColors: Record<string, string> = {
-                active: "bg-green-500 text-white",
+                Active: "bg-green-500 text-white",
                 Inactive: "bg-yellow-500 text-black",
                 Dead: "bg-red-500 text-white",
                 "Not a Member": "bg-black text-white",
@@ -20,7 +21,7 @@ export const columns: ColumnDef<Member>[] = [
             return (
                 <div
                     className={`capitalize font-medium px-2 py-1 rounded ${
-                        statusColors[status?.trim() as keyof typeof statusColors] || "bg-gray-500 text-white"
+                        statusColors[status] || "bg-gray-500 text-white"
                     }`}
                 >
                     {status}
@@ -37,6 +38,18 @@ export const columns: ColumnDef<Member>[] = [
         accessorKey: "contact",
         header: "Contact",
         cell: ({row}) => <div className="font-medium">{row.getValue("contact")}</div>,
+    },
+    {
+        accessorKey: "dues",
+        header: "Outstanding Dues",
+        cell: ({row}) => {
+            const dues = row.getValue("dues") as number;
+            return (
+                <div className={`font-medium ${dues > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    ${dues}
+                </div>
+            );
+        },
     },
     {
         accessorKey: "defaulted",
@@ -63,16 +76,32 @@ export const columns: ColumnDef<Member>[] = [
         enableHiding: false,
         cell: ({row}) => {
             const member = row.original;
-            // Create a wrapper component to use navigation
             const EditButtonWrapper = () => {
                 const navigate = useNavigate();
+                
+                const handleDelete = async () => {
+                    if (window.confirm(`Are you sure you want to delete ${member.name}?`)) {
+                        onDelete(member.id);
+                    }
+                };
+                
                 return (
-                    <Button
-                        className="bg-yellow-500 text-white"
-                        onClick={() => navigate(`/admin/members/edit/${member.id}`)}
-                    >
-                        Edit
-                    </Button>
+                    <div className="flex space-x-2">
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => navigate(`/admin/members/edit/${member.id}`)}
+                        >
+                            <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={handleDelete}
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </Button>
+                    </div>
                 );
             };
             return <EditButtonWrapper/>;

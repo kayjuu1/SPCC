@@ -1,12 +1,14 @@
 import React, {useEffect, useState} from "react";
 import {useParams, useNavigate} from "react-router-dom";
-import {supabase} from "@/supabaseClient.ts";
+import { supabase, Member } from "@/lib/supabase";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Separator} from "@/components/ui/separator";
 import {toast} from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     Calendar,
     User,
@@ -22,18 +24,32 @@ import {
 const EditMember = () => {
     const {id} = useParams();
     const navigate = useNavigate();
-    const [member, setMember] = useState<any>(null);
+    const [member, setMember] = useState<Member | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchMember = async () => {
             if (!id) return;
-            const {data, error} = await supabase.from("members").select("*").eq("id", id).single();
+            
+            try {
+                const {data, error} = await supabase
+                    .from("members")
+                    .select("*")
+                    .eq("id", id)
+                    .single();
+                    
             if (error) {
-                toast({description: "Error fetching member data."});
-                return;
+                    throw error;
             } else {
                 setMember(data);
+            }
+            } catch (error) {
+                console.error("Error fetching member:", error);
+                toast({
+                    variant: "destructive",
+                    description: "Error fetching member data."
+                });
+                navigate("/admin/dashboard");
             }
             setLoading(false);
         };
@@ -41,13 +57,35 @@ const EditMember = () => {
         fetchMember();
     }, [id]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setMember({...member, [e.target.name]: e.target.value});
+    const handleChange = (name: string, value: any) => {
+        if (!member) return;
+        setMember({...member, [name]: value});
     };
 
     const handleSubmit = async () => {
+        if (!member || !id) return;
+        
         try {
-            const {error} = await supabase.from("members").update(member).eq("id", id);
+            const {error} = await supabase
+                .from("members")
+                .update({
+                    name: member.name,
+                    dob: member.dob,
+                    dues_card_id: member.dues_card_id,
+                    baptized: member.baptized,
+                    baptism_date: member.baptism_date,
+                    confirmed: member.confirmed,
+                    confirmation_date: member.confirmation_date,
+                    contact: member.contact,
+                    address: member.address,
+                    society: member.society,
+                    role: member.role,
+                    status: member.status,
+                    defaulted: member.defaulted,
+                    dues: member.dues,
+                })
+                .eq("id", id);
+                
             if (error) throw error;
 
             toast({description: "Member updated successfully."});
@@ -56,9 +94,20 @@ const EditMember = () => {
             console.error("Error updating member:", error);
         }
     };
+    
     const handleDelete = async () => {
+        if (!id) return;
+        
+        if (!window.confirm(`Are you sure you want to delete ${member?.name}? This action cannot be undone.`)) {
+            return;
+        }
+        
         try {
-            const {error} = await supabase.from("members").delete().eq("id", id);
+            const {error} = await supabase
+                .from("members")
+                .delete()
+                .eq("id", id);
+                
             if (error) throw error;
 
             toast({description: "Member deleted successfully."});
@@ -129,71 +178,150 @@ const EditMember = () => {
                                     label="Name"
                                     name="name"
                                     value={member?.name || ""}
-                                    onChange={handleChange}
+                                    onChange={(value) => handleChange("name", value)}
                                     icon={<User className="h-4 w-4"/>}
                                 />
                                 <DetailField
                                     label="Dues Card ID"
-                                    name="id"
+                                    name="dues_card_id"
                                     value={member?.dues_card_id || ""}
-                                    onChange={handleChange}
+                                    onChange={(value) => handleChange("dues_card_id", value)}
                                     icon={<FileText className="h-4 w-4"/>}
                                 />
                                 <DetailField
                                     label="Date of Birth"
-                                    name="date of birth"
+                                    name="dob"
                                     type="date"
                                     value={member?.dob || ""}
-                                    onChange={handleChange}
+                                    onChange={(value) => handleChange("dob", value)}
                                     icon={<Calendar className="h-4 w-4"/>}
                                 />
+                                
+                                <div className="space-y-2">
+                                    <Label className="flex items-center gap-2 text-sm font-medium">
+                                        <Calendar className="h-4 w-4"/>
+                                        Baptized
+                                    </Label>
+                                    <div className="flex items-center space-x-2">
+                                        <Checkbox
+                                            checked={member?.baptized || false}
+                                            onCheckedChange={(checked) => handleChange("baptized", checked)}
+                                        />
+                                        <span className="text-sm">Yes, this member is baptized</span>
+                                    </div>
+                                </div>
+                                
+                                {member?.baptized && (
                                 <DetailField
                                     label="Baptismal Date"
-                                    name="Date of Baptism"
+                                    name="baptism_date"
                                     type="date"
                                     value={member?.baptism_date || ""}
-                                    onChange={handleChange}
+                                    onChange={(value) => handleChange("baptism_date", value)}
                                     icon={<Calendar className="h-4 w-4"/>}
                                 />
+                                )}
                             </div>
 
                             {/* Right Column */}
                             <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label className="flex items-center gap-2 text-sm font-medium">
+                                        <Calendar className="h-4 w-4"/>
+                                        Confirmed
+                                    </Label>
+                                    <div className="flex items-center space-x-2">
+                                        <Checkbox
+                                            checked={member?.confirmed || false}
+                                            onCheckedChange={(checked) => handleChange("confirmed", checked)}
+                                        />
+                                        <span className="text-sm">Yes, this member is confirmed</span>
+                                    </div>
+                                </div>
+                                
+                                {member?.confirmed && (
                                 <DetailField
                                     label="Confirmation Date"
-                                    name="Date of Confirmation"
+                                    name="confirmation_date"
+                                    type="date"
                                     value={member?.confirmation_date || ""}
-                                    onChange={handleChange}
+                                    onChange={(value) => handleChange("confirmation_date", value)}
                                     icon={<FileText className="h-4 w-4"/>}
                                 />
+                                )}
+                                
                                 <DetailField
                                     label="Contact"
                                     name="contact"
                                     value={member?.contact || ""}
-                                    onChange={handleChange}
+                                    onChange={(value) => handleChange("contact", value)}
                                     icon={<Mail className="h-4 w-4"/>}
                                 />
                                 <DetailField
                                     label="Address"
-                                    name="Address"
+                                    name="address"
                                     value={member?.address || ""}
-                                    onChange={handleChange}
+                                    onChange={(value) => handleChange("address", value)}
                                     icon={<UserCircle className="h-4 w-4"/>}
                                 />
                                 <DetailField
                                     label="Society"
                                     name="society"
                                     value={member?.society || ""}
-                                    onChange={handleChange}
+                                    onChange={(value) => handleChange("society", value)}
                                     icon={<User className="h-4 w-4"/>}
                                 />
+                                
+                                <DetailField
+                                    label="Role"
+                                    name="role"
+                                    value={member?.role || ""}
+                                    onChange={(value) => handleChange("role", value)}
+                                    icon={<User className="h-4 w-4"/>}
+                                />
+                                
+                                <DetailField
+                                    label="Outstanding Dues ($)"
+                                    name="dues"
+                                    type="number"
+                                    value={member?.dues?.toString() || "0"}
+                                    onChange={(value) => handleChange("dues", parseFloat(value) || 0)}
+                                    icon={<FileText className="h-4 w-4"/>}
+                                />
+                                
+                                <div className="space-y-2">
+                                    <Label className="flex items-center gap-2 text-sm font-medium">
+                                        <Info className="h-4 w-4"/>
+                                        Status
+                                    </Label>
+                                    <Select
+                                        value={member?.status || "Active"}
+                                        onValueChange={(value) => handleChange("status", value)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Active">Active</SelectItem>
+                                            <SelectItem value="Inactive">Inactive</SelectItem>
+                                            <SelectItem value="Dead">Deceased</SelectItem>
+                                            <SelectItem value="Not a Member">Not a Member</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
                         </div>
 
                         <Separator className="my-6"/>
 
-                        {/*<Button variant="ghost" onClick={handleCancel}>Cancel</Button>*/}
-                        <Button onClick={handleSubmit}>Save Changes</Button>
+                        <div className="flex justify-between">
+                            <Button variant="outline" onClick={() => navigate("/admin/dashboard")}>
+                                Cancel
+                            </Button>
+                            <Button onClick={handleSubmit}>
+                                Save Changes
+                            </Button>
+                        </div>
 
                     </CardContent>
                 </Card>
@@ -214,10 +342,9 @@ const DetailField = ({
     label: string,
     name: string,
     value: string,
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
+    onChange: (value: string) => void,
     type?: string,
     icon: React.ReactNode,
-    required?: boolean
 }) => (
     <div className="space-y-2">
         <Label className="flex items-center gap-2 text-sm font-medium">
@@ -229,7 +356,7 @@ const DetailField = ({
                 type={type}
                 name={name}
                 value={value}
-                onChange={onChange}
+                onChange={(e) => onChange(e.target.value)}
                 className="w-full"
             />
         </div>

@@ -5,13 +5,20 @@ import SignIn from "./admin/SignIn";
 import EditMember from "./admin/EditMemberPage";
 import NavBar from "@/components/NavBar.tsx";
 import React from "react";
-import { AuthProvider, useAuth } from "@/context/AuthContext.tsx";
+import { useAuth } from "@/hooks/useAuth";
+import { Toaster } from "@/components/ui/toaster";
 
 // Layout component for protected routes (with NavBar)
 function AdminLayout({ children }: { children: React.ReactNode }) {
+    const { signOut } = useAuth();
+    
+    const handleLogout = async () => {
+        await signOut();
+    };
+    
     return (
         <div className="flex flex-col h-screen">
-            <NavBar adminName="Admin" />
+            <NavBar adminName="Admin" onLogout={handleLogout} />
             <main className="flex-1 overflow-y-auto pt-16"> {/* Add padding-top to prevent overlap */}
                 {children}
             </main>
@@ -21,7 +28,15 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
 
 // Protected Route Wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, loading } = useAuth();
+    
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+        );
+    }
 
     if (!isAuthenticated) {
         return <Navigate to="/admin/signin" replace />;
@@ -32,7 +47,6 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
     return (
-        <AuthProvider>
             <Routes>
                 {/* User Route */}
                 <Route path="/" element={<User />} />
@@ -65,7 +79,8 @@ function App() {
                 {/* Redirect to /admin/signin for unknown routes */}
                 <Route path="*" element={<Navigate to="/admin/signin" replace />} />
             </Routes>
-        </AuthProvider>
+            <Toaster />
+        </>
     );
 }
 

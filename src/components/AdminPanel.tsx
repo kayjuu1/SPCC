@@ -1,9 +1,7 @@
-import * as React from "react";
-import {useState, useEffect} from "react";
+import React from "react";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {Card, CardContent} from "@/components/ui/card";
-import {supabase} from "@/supabaseClient.ts";
-import {Member} from "@/types/adminTypes";
+import {Member} from "@/lib/supabase";
 import {
     getCoreRowModel,
     getPaginationRowModel,
@@ -12,29 +10,18 @@ import {
     useReactTable,
     flexRender,
 } from "@tanstack/react-table";
-import {Users, LayoutDashboard} from 'lucide-react';
-import AddMemberDialog from "./AddMemberModal";
-import {columns} from "@/utils/columns.tsx";
+import {Users, LayoutDashboard, Plus} from 'lucide-react';
+import AddMemberDialog from "./AddMemberButton";
+import {createColumns} from "@/utils/columns";
 import SideBar from "@/components/SideBar.tsx";
-import AddMemberButton from "@/components/AddMemberButton.tsx";
-import NavBar from "@/components/NavBar.tsx";
+import {useMembers} from "@/hooks/useMembers";
+import {Button} from "@/components/ui/button";
 
 export default function AdminDashboard() {
-    const [members, setMembers] = useState<Member[]>([]);
-    const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
-
-    const loadMembers = async () => {
-        const {data, error} = await supabase.from("members").select("id, name, status, contact, role, society");
-        if (error) {
-            console.error("Error fetching members:", error);
-        } else {
-            setMembers(data as Member[]);
-        }
-    };
-
-    useEffect(() => {
-        loadMembers();
-    }, []);
+    const { members, loading, fetchMembers, deleteMember } = useMembers();
+    const [isAddMemberOpen, setIsAddMemberOpen] = React.useState(false);
+    
+    const columns = React.useMemo(() => createColumns(deleteMember), [deleteMember]);
 
     return (
         <div className="flex h-screen bg-gray-50">
@@ -48,7 +35,13 @@ export default function AdminDashboard() {
                                 <LayoutDashboard className="w-8 h-8 text-blue-600 mr-3"/>
                                 <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
                             </div>
-                            <AddMemberButton onClick={() => setIsAddMemberOpen(true)}/>
+                            <Button 
+                                onClick={() => setIsAddMemberOpen(true)}
+                                className="bg-teal-700 hover:bg-teal-800 text-white font-medium"
+                            >
+                                <Plus className="w-4 h-4 mr-2"/>
+                                Add Member
+                            </Button>
                         </div>
                     </div>
 
@@ -70,13 +63,17 @@ export default function AdminDashboard() {
                     {/* Members Table Section */}
                     <div className="bg-white rounded-lg shadow-sm p-6">
                         <h2 className="text-xl font-semibold text-gray-800 mb-6">Members Overview</h2>
-                        <DataTable data={members}/>
+                        {loading ? (
+                            <div className="text-center py-8">Loading members...</div>
+                        ) : (
+                            <DataTable data={members} columns={columns}/>
+                        )}
                     </div>
 
                     <AddMemberDialog
                         isOpen={isAddMemberOpen}
                         onClose={() => setIsAddMemberOpen(false)}
-                        onMemberAdded={loadMembers}
+                        onMemberAdded={fetchMembers}
                     />
                 </div>
             </main>
@@ -84,7 +81,7 @@ export default function AdminDashboard() {
     );
 }
 
-export function DataTable({data}: { data: Member[] }) {
+export function DataTable({data, columns}: { data: Member[], columns: any[] }) {
     const table = useReactTable({
         data,
         columns,
@@ -139,21 +136,28 @@ export function DataTable({data}: { data: Member[] }) {
             </Table>
 
             {/* Pagination Controls */}
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <button
-                    className="px-4 py-2 bg-gray-200 rounded-md"
+            <div className="flex items-center justify-between space-x-2 py-4">
+                <div className="text-sm text-gray-500">
+                    Showing {table.getRowModel().rows.length} of {data.length} members
+                </div>
+                <div className="flex space-x-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
                 >
                     Previous
-                </button>
-                <button
-                    className="px-4 py-2 bg-gray-200 rounded-md"
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
                 >
                     Next
-                </button>
+                    </Button>
+                </div>
             </div>
         </div>
     );

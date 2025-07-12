@@ -13,7 +13,7 @@ import {
 import {Label} from "@/components/ui/label";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {Checkbox} from "@/components/ui/checkbox";
-import {supabase} from "@/supabaseClient.ts";
+import {useMembers} from "@/hooks/useMembers";
 import {useToast} from "@/hooks/use-toast.ts";
 import {UserPlus} from "lucide-react";
 
@@ -29,9 +29,15 @@ const memberRoles = [
     "Member",
 ];
 
-export default function AddMemberDialog(props: any) {
-    const [open, setOpen] = useState(false);
+interface AddMemberDialogProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onMemberAdded: () => void;
+}
+
+export default function AddMemberDialog({ isOpen, onClose, onMemberAdded }: AddMemberDialogProps) {
     const {toast} = useToast();
+    const { addMember } = useMembers();
     const [member, setMember] = useState({
         name: "",
         dob: "",
@@ -46,6 +52,7 @@ export default function AddMemberDialog(props: any) {
         role: "",
         dependents: [] as string[],
         status: "",
+        dues: 0,
     });
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -70,38 +77,47 @@ export default function AddMemberDialog(props: any) {
         }
 
         setErrors({});
-        const cleanedMember = {
-            ...member,
-            dob: member.dob || null,
-            baptism_date: member.baptism_date || null,
-            confirmation_date: member.confirmation_date || null,
-            status: member.status || "Active",
-        };
-
+        
         try {
-            const {data, error} = await supabase.from("members").insert([cleanedMember]);
+            const cleanedMember = {
+            ...member,
+                dob: member.dob || null,
+                baptism_date: member.baptism_date || null,
+                confirmation_date: member.confirmation_date || null,
+                status: (member.status || "Active") as "Active" | "Inactive" | "Dead" | "Not a Member",
+                defaulted: false,
+                dependents: [],
+                dues: 0,
+            };
 
-            if (error) {
-                console.error("Error adding member:", error.message);
-                toast({variant: "destructive", description: "Error adding member. Please try again."});
-            } else {
-                console.log("Member added successfully:", data);
-                setOpen(false);
-                toast({description: "Member Added Successfully."});
-            }
+            await addMember(cleanedMember);
+            onClose();
+            onMemberAdded();
+            
+            // Reset form
+            setMember({
+                name: "",
+                dob: "",
+                dues_card_id: "",
+                baptized: false,
+                baptism_date: "",
+                confirmed: false,
+                confirmation_date: "",
+                contact: "",
+                address: "",
+                society: "",
+                role: "",
+                dependents: [],
+                status: "",
+                dues: 0,
+            });
         } catch (err) {
-            console.error("Unexpected error:", err);
+            console.error("Error adding member:", err);
         }
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button className="bg-teal-700 hover:bg-teal-800 text-white font-medium">
-                    <UserPlus className="w-4 h-4 mr-2"/>
-                    Add Member
-                </Button>
-            </DialogTrigger>
+        <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[800px] p-6">
                 <DialogHeader className="space-y-3">
                     <DialogTitle className="text-2xl font-semibold text-gray-900">Add New Member</DialogTitle>
