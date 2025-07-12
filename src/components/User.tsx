@@ -29,7 +29,7 @@ export default function UserSearch() {
             const { data, error } = await supabase
                 .from("members")
                 .select("id, name, dues")
-                .ilike("name", `%${search}%`);
+                .ilike("name", `%${search}%`)
                 .limit(10);
 
             if (error) {
@@ -150,44 +150,6 @@ export default function UserSearch() {
                         </p>
                     </div>
                 </div>
-            </div>
-        </div>
-    );
-}
-
-                    <Input
-                        placeholder="Search your name..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        id={search}
-                    />
-                    <Button
-                        onClick={fetchSuggestions}
-                        className="px-4"
-                    >
-                        Search
-                    </Button>
-                </div>
-                {errorMessage && <p className="text-red-500 mt-2">{errorMessage}</p>}
-                <ul className="bg-white shadow-md mt-2 rounded-lg">
-                    {suggestions.map((user) => (
-                        <li
-                            key={user.id}
-                            className="p-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => fetchUserData(user.id)}
-                        >
-                            {user.name}
-                        </li>
-                    ))}
-                </ul>
-                {userData && (
-                    <Card className="mt-4">
-                        <CardContent>
-                            <h2 className="text-xl font-bold">{userData.name}</h2>
-                            <p className="text-red-500">Unpaid Dues: ${userData.dues}</p>
-                        </CardContent>
-                    </Card>
-                )}
             </div>
         </div>
     );
