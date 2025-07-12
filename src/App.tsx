@@ -47,6 +47,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
     return (
+        <>
             <Routes>
                 {/* User Route */}
                 <Route path="/" element={<User />} />
