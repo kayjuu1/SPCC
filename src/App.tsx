@@ -8,17 +8,37 @@ import AllMembersPage from "@/pages/AllMembersPage";
 import NewMembersPage from "@/pages/NewMembersPage";
 import DeletedMembersPage from "@/pages/DeletedMembersPage";
 import AdminsPage from "@/pages/AdminsPage";
+import DuesPage from "@/pages/DuesPage";
+import AttendancePage from "@/pages/AttendancePage";
 import React from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Toaster } from "@/components/ui/toaster";
 
 // Layout component for protected routes (with NavBar)
 function AdminLayout({ children }: { children: React.ReactNode }) {
-    const { signOut } = useAuth();
+    const { signOut, resetSessionTimeout } = useAuth();
     
     const handleLogout = async () => {
         await signOut();
     };
+    
+    // Reset session timeout on user activity
+    React.useEffect(() => {
+        const handleActivity = () => {
+            resetSessionTimeout();
+        };
+        
+        const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+        events.forEach(event => {
+            document.addEventListener(event, handleActivity, true);
+        });
+        
+        return () => {
+            events.forEach(event => {
+                document.removeEventListener(event, handleActivity, true);
+            });
+        };
+    }, [resetSessionTimeout]);
     
     return (
         <div className="flex flex-col h-screen">
@@ -96,6 +116,26 @@ function App() {
                         <ProtectedRoute>
                             <AdminLayout>
                                 <DeletedMembersPage />
+                            </AdminLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/dues"
+                    element={
+                        <ProtectedRoute>
+                            <AdminLayout>
+                                <DuesPage />
+                            </AdminLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/attendance"
+                    element={
+                        <ProtectedRoute>
+                            <AdminLayout>
+                                <AttendancePage />
                             </AdminLayout>
                         </ProtectedRoute>
                     }
