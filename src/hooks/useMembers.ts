@@ -37,16 +37,9 @@ export function useMembers() {
 
   const addMember = async (memberData: Omit<Member, 'id' | 'created_at' | 'updated_at'>) => {
     try {
-      // Get current user for user_id
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
-
       const { data, error } = await supabase
         .from('members')
-        .insert([{ ...memberData, user_id: user.id }])
+        .insert([memberData])
         .select()
         .single();
 
