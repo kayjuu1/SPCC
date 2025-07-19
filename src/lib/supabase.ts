@@ -27,8 +27,12 @@ export interface Member {
   defaulted: boolean;
   dependents: string[];
   dues: number;
+  user_id: string | null;
   created_at: string;
   updated_at: string;
+  join_date: string | null;
+  email: string | null;
+  phone: string | null;
 }
 
 export interface AdminLog {
