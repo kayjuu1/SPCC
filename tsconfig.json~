@@ -1,0 +1,22 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*, ./components/*, __dirname/*"],
+    },
+
+  },
+  "include": ["src", ".env", "vite.config.ts", "__dirname/*"],
+  "alias": {
+    "@": "path.resolve(__dirname", "./src"")"
+  }
+}
