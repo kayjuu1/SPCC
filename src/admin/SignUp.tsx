@@ -4,6 +4,7 @@ import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Label} from "@/components/ui/label";
 import {useNavigate} from "react-router-dom";
+import {toast} from "sonner";
 
 export default function SignUp() {
     const [email, setEmail] = useState("");
@@ -25,6 +26,7 @@ export default function SignUp() {
         } else {
             alert("Check your email for confirmation!");
             navigate("/admin/signin");
+            toast.success("Admin account created successfully!");
         }
         setLoading(false);
     };
