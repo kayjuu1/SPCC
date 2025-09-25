@@ -1,7 +1,6 @@
 // Protected Route Wrapper
 import {useAuth} from "@/hooks/useAuth";
 import {Navigate, Route, Routes} from "react-router-dom";
-import {User} from "lucide-react";
 import Layout from "@/components/Layout";
 import SignIn from "@/admin/SignIn";
 import AllMembersPage from "@/pages/AllMembersPage";
@@ -40,8 +39,8 @@ function App() {
         <>
             <Routes>
                 {/* Public Routes */}
-                <Route path="/" element={<User/>}/>
-                <Route path="/admin/signin" element={<SignIn/>}/>
+                {/*<Route path="/" element={<User/>}/>*/}
+                <Route path="/" element={<SignIn/>}/>
 
                 {/* Protected Admin Routes with Layout */}
                 <Route path="/admin" element={

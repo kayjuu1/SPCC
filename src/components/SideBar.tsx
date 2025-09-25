@@ -4,66 +4,75 @@ import {Badge} from "@/components/ui/badge";
 import {BarChart3, Calendar, DollarSign, LayoutDashboard, Settings, Trash2, UserPlus, Users} from "lucide-react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {cn} from "@/lib/utils";
+import {useSidebar} from "@/context/SidebarContext";
+import {Sheet, SheetContent} from "@/components/ui/sheet";
+import {ScrollArea} from "@/components/ui/scroll-area";
 
-const Sidebar = () => {
+const menuItems = [
+    {
+        title: "Dashboard",
+        icon: LayoutDashboard,
+        path: "/admin/dashboard",
+        badge: null
+    },
+    {
+        title: "All Members",
+        icon: Users,
+        path: "/admin/members",
+        badge: null
+    },
+    {
+        title: "New Members",
+        icon: UserPlus,
+        path: "/admin/members/new",
+        badge: "New"
+    },
+    {
+        title: "Dues Management",
+        icon: DollarSign,
+        path: "/admin/dues",
+        badge: null
+    },
+    {
+        title: "Attendance",
+        icon: Calendar,
+        path: "/admin/attendance",
+        badge: null
+    },
+    {
+        title: "Reports",
+        icon: BarChart3,
+        path: "/admin/reports",
+        badge: null
+    },
+    {
+        title: "Deleted Members",
+        icon: Trash2,
+        path: "/admin/members/deleted",
+        badge: null
+    },
+    {
+        title: "Admin Management",
+        icon: Settings,
+        path: "/admin/admins",
+        badge: null
+    }
+];
+
+const SidebarContent = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const {closeSidebar} = useSidebar();
 
     const isActive = (path: string) => location.pathname === path;
 
-    const menuItems = [
-        {
-            title: "Dashboard",
-            icon: LayoutDashboard,
-            path: "/admin/dashboard",
-            badge: null
-        },
-        {
-            title: "All Members",
-            icon: Users,
-            path: "/admin/members",
-            badge: null
-        },
-        {
-            title: "New Members",
-            icon: UserPlus,
-            path: "/admin/members/new",
-            badge: "New"
-        },
-        {
-            title: "Dues Management",
-            icon: DollarSign,
-            path: "/admin/dues",
-            badge: null
-        },
-        {
-            title: "Attendance",
-            icon: Calendar,
-            path: "/admin/attendance",
-            badge: null
-        },
-        {
-            title: "Reports",
-            icon: BarChart3,
-            path: "/admin/reports",
-            badge: null
-        },
-        {
-            title: "Deleted Members",
-            icon: Trash2,
-            path: "/admin/members/deleted",
-            badge: null
-        },
-        {
-            title: "Admin Management",
-            icon: Settings,
-            path: "/admin/admins",
-            badge: null
-        }
-    ];
+    const handleNavigation = (path: string) => {
+        navigate(path);
+        closeSidebar();
+    };
 
     return (
-        <div className="w-64 bg-white border-r border-gray-200 h-full flex flex-col">
+        <>
             {/* Header */}
             <div className="p-6 border-b border-gray-200">
                 <h1 className="text-xl font-bold text-teal-600">SPCC Admin</h1>
@@ -82,7 +91,7 @@ const Sidebar = () => {
                                 ? "bg-teal-600 text-white shadow-sm hover:bg-teal-700"
                                 : "hover:bg-gray-100 hover:text-gray-900"
                         )}
-                        onClick={() => navigate(item.path)}
+                        onClick={() => handleNavigation(item.path)}
                     >
                         <item.icon className="mr-3 h-4 w-4"/>
                         <span className="flex-1 text-left">{item.title}</span>
@@ -104,7 +113,33 @@ const Sidebar = () => {
                     <p>Parish Management System</p>
                 </div>
             </div>
-        </div>
+        </>
+    );
+};
+
+const Sidebar = () => {
+    const {isOpen, closeSidebar} = useSidebar();
+
+    return (
+        <>
+            {/* Mobile Sidebar */}
+            <div className="md:hidden">
+                <Sheet open={isOpen} onOpenChange={closeSidebar}>
+                    <SheetContent side="left" className="w-72 p-0 flex flex-col">
+                        <ScrollArea className="flex-1">
+                            <SidebarContent/>
+                        </ScrollArea>
+                    </SheetContent>
+                </Sheet>
+            </div>
+
+            {/* Desktop Sidebar */}
+            <div className="hidden md:flex md:flex-shrink-0">
+                <div className="w-64 bg-white border-r border-gray-200 h-full flex flex-col">
+                    <SidebarContent/>
+                </div>
+            </div>
+        </>
     );
 };
 
