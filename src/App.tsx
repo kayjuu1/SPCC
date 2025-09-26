@@ -28,7 +28,7 @@ function ProtectedRoute({children}: { children: React.ReactNode }) {
     }
 
     if (!isAuthenticated) {
-        return <Navigate to="/admin/signin" replace/>;
+        return <Navigate to="/" replace/>;
     }
 
     return <>{children}</>;
@@ -62,7 +62,7 @@ function App() {
                 </Route>
 
                 {/* Redirect to signin for unknown routes */}
-                <Route path="*" element={<Navigate to="/admin/signin" replace/>}/>
+                <Route path="*" element={<Navigate to="/" replace/>}/>
             </Routes>
             <Toaster richColors/>
         </>
